@@ -208,6 +208,19 @@ MatrixXf QuadEstimatorEKF::GetRbgPrime(float roll, float pitch, float yaw)
 
   ////////////////////////////// BEGIN STUDENT CODE ///////////////////////////
 
+  float sp = sinf(pitch);
+  float cp = cosf(pitch);
+  float sr = sinf(roll);
+  float cr = cosf(roll);
+  float sy = sinf(yaw);
+  float cy = cosf(yaw);
+
+  RbgPrime(0, 0) = -cp * sy;
+  RbgPrime(0, 1) = -sy * sp * sr - cy * cr;
+  RbgPrime(0, 2) = -sy * sp * cr + cy * sr;
+  RbgPrime(1, 0) = cy * cp;
+  RbgPrime(1, 1) = cy * sp * sr - sy * cr;
+  RbgPrime(1, 2) = cy * sp * cr + sy * sr;
 
   /////////////////////////////// END STUDENT CODE ////////////////////////////
 
@@ -254,10 +267,20 @@ void QuadEstimatorEKF::Predict(float dt, V3F accel, V3F gyro)
 
   ////////////////////////////// BEGIN STUDENT CODE ///////////////////////////
 
+  VectorXf accel_vec(3);
+  accel_vec << accel.x, accel.y, accel.z;
+  gPrime(0, 3) = dt;
+  gPrime(1, 4) = dt;
+  gPrime(2, 5) = dt;
+  gPrime(3, 6) = (RbgPrime.row(0) * accel_vec)(0) * dt;
+  gPrime(4, 6) = (RbgPrime.row(1) * accel_vec)(0) * dt;
+  gPrime(5, 6) = (RbgPrime.row(2) * accel_vec)(0) * dt;
+  ekfCov = gPrime * ekfCov * gPrime.transpose() + Q;
 
   /////////////////////////////// END STUDENT CODE ////////////////////////////
-
+  
   ekfState = newState;
+  
 }
 
 void QuadEstimatorEKF::UpdateFromGPS(V3F pos, V3F vel)
