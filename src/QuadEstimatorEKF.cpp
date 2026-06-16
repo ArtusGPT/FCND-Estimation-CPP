@@ -315,6 +315,8 @@ void QuadEstimatorEKF::UpdateFromMag(float magYaw)
   MatrixXf hPrime(1, QUAD_EKF_NUM_STATES);
   hPrime.setZero();
 
+
+
   // MAGNETOMETER UPDATE
   // Hints: 
   //  - Your current estimated yaw can be found in the state vector: ekfState(6)
@@ -322,7 +324,10 @@ void QuadEstimatorEKF::UpdateFromMag(float magYaw)
   //    (you don't want to update your yaw the long way around the circle)
   //  - The magnetomer measurement covariance is available in member variable R_Mag
   ////////////////////////////// BEGIN STUDENT CODE ///////////////////////////
-
+  zFromX(0) = ekfState(6);
+  hPrime(0, 6) = 1;
+  if (zFromX(0) - z(0) > F_PI) z(0) += 2.f * F_PI;
+  if (zFromX(0) - z(0) < -F_PI) z(0) -= 2.f * F_PI;
 
   /////////////////////////////// END STUDENT CODE ////////////////////////////
 
